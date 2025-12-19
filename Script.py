@@ -1,11 +1,10 @@
 class script(object):
-    START_TXT = """<b><u>🚩 ᴊᴀɪ ꜱʜʀɪ ʀᴀᴍ 🚩</u></b>
+    START_TXT = """
+<b>Hey 👋 {}🤩</b>
 
-<b>ʜᴇʏ {}, {}</b>
+<b>🔍 Wᴇʟᴄᴏᴍᴇ Tᴏ Tʜᴇ Wᴏʀʟᴅ's Cᴏᴏʟᴇsᴛ Sᴇᴀʀᴄʜ Eɴɢɪɴᴇ!</b>
 
-<b>🤖 ɪ ᴀᴍ <a href=https://t.me/{}>{}</a>, ᴛʜᴇ ᴍᴏꜱᴛ ᴘᴏᴡᴇʀꜰᴜʟ ᴀᴜᴛᴏ ꜰɪʟᴛᴇʀ ʙᴏᴛ ᴡɪᴛʜ ᴘʀᴇᴍɪᴜᴍ ꜰᴇᴀᴛᴜʀᴇꜱ.</b>
-"""
-
+<b>Here You Can Request Movie's, Just Sent</b> <b>Movie OR WebSeries Name With Proper</b> <b><a href='https://www.google.com/'>Google</a> Spelling..!!</b>"""
 
     GSTART_TXT = """<b>🚩 ᴊᴀɪ ꜱʜʀɪ ʀᴀᴍ 🚩</b>
 
@@ -229,21 +228,22 @@ Nᴀᴍᴇ : {}
 
 Mᴇꜱꜱᴀɢᴇ : <b>{}</b>"""
     
-    CAPTION = """<b><a href="https://t.me/dreamxbotz">{file_name}</a></b>\n\n<b>⚜️ Powered By : <a href="https://t.me/dreamxbotz">[ ᴅʀᴇᴀᴍxʙᴏᴛᴢ ]</a></b>"""
+    CAPTION = """<b>📂 ғɪʟᴇɴᴀᴍᴇ : {file_name}
 
+<b>⚙️ sɪᴢᴇ : {file_size}</b>"""
     
     MOVIE_UPDATE_NOTIFY_TXT = """
-</b><a href={poster_url}>📥</a><a href={imdb_url}>New {tag} Added</a></b>
+</b><a href={poster_url}>📥 </a><a href={imdb_url}>NEW {tag} ADDED</a></b>
 
-<blockquote>✨ ᴛɪᴛʟᴇ : <code>{filename}</code>
-
-🎭 ɢᴇɴʀᴇs : <b>{genres}</b>
-📺 ᴏᴛᴛ        : <b>{ott}</b>
-🎞️ ǫᴜᴀʟɪᴛʏ : <b>{quality}</b>
-🎧 ᴀᴜᴅɪᴏ    : <b>{language}</b>
-🔥 ʀᴀᴛɪɴɢ   : <b>{rating}</b>
-{episodes}
-</blockquote>
+✨ ᴛɪᴛʟᴇ : <code>{filename}</code>
+─┉─•✦•─┉─
+<blockquote>🎭 ɢᴇɴʀᴇs : <b>{genres}</b>
+🍿 ᴏᴛᴛ        : <b>{ott}</b>
+🎬 ǫᴜᴀʟɪᴛʏ : <b>{quality}</b>
+🔉 ᴀᴜᴅɪᴏ    : <b>{language}</b>
+🌟 ʀᴀᴛɪɴɢ   : <b>{rating}</b>
+{episodes} </blockquote>
+─┉─•✦•─┉─
 
 🔍 <b>Sᴇᴀʀᴄʜ →</b> {search_link}
 """
