@@ -1468,8 +1468,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
         elif curr_time < 21:
             gtxt = "ɢᴏᴏᴅ ᴇᴠᴇɴɪɴɢ 🌘"
         else:
-            gtxt = "ɢᴏᴏᴅ ɴɪɢʜᴛ 🌑"
-                try:
+                    gtxt = "ɢᴏᴏᴅ ɴɪɢʜᴛ 🌑"
+        try:
             # Photo, Text aur Buttons sab ek saath update honge (Super Fast)
             await query.message.edit_message_media(
                 media=InputMediaPhoto(
@@ -1480,7 +1480,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 reply_markup=reply_markup
             )
         except Exception as e:
-            # Agar same photo dobara aa jaye toh Telegram error deta hai, usse bachne ke liye:
+            # Agar same photo dobara aa jaye toh Telegram error deta hai
             print(f"Media edit failed: {e}")
             try:
                 # Sirf caption aur buttons update karega agar media update fail ho
@@ -1495,8 +1495,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
         # Isse button ka loading spinner turant hat jayega
         await query.answer(MSG_ALRT)
 
-
     elif query.data == "donation":
+        # Donation wala logic yahan se shuru hoga
         buttons = [[
                 InlineKeyboardButton('🌲 Sᴇɴᴅ Dᴏɴᴀᴛᴇ Sᴄʀᴇᴇɴsʜᴏᴛ Hᴇʀᴇ', url=OWNER_LNK)
             ],[
