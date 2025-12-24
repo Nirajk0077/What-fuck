@@ -1468,7 +1468,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
         elif curr_time < 21:
             gtxt = "ɢᴏᴏᴅ ᴇᴠᴇɴɪɴɢ 🌘"
         else:
-                    gtxt = "ɢᴏᴏᴅ ɴɪɢʜᴛ 🌑"
+            gtxt = "ɢᴏᴏᴅ ɴɪɢʜᴛ 🌑"
         try:
             # Photo, Text aur Buttons sab ek saath update honge (Super Fast)
             await query.message.edit_message_media(
