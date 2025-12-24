@@ -1469,20 +1469,32 @@ async def cb_handler(client: Client, query: CallbackQuery):
             gtxt = "ɢᴏᴏᴅ ᴇᴠᴇɴɪɴɢ 🌘"
         else:
             gtxt = "ɢᴏᴏᴅ ɴɪɢʜᴛ 🌑"
-        try:
-            await client.edit_message_media(
-                query.message.chat.id,
-                query.message.id,
-                InputMediaPhoto(random.choice(PICS))
+                try:
+            # Photo, Text aur Buttons sab ek saath update honge (Super Fast)
+            await query.message.edit_message_media(
+                media=InputMediaPhoto(
+                    random.choice(PICS),
+                    caption=script.START_TXT.format(query.from_user.mention, gtxt, temp.U_NAME, temp.B_NAME),
+                    parse_mode=enums.ParseMode.HTML
+                ),
+                reply_markup=reply_markup
             )
         except Exception as e:
-            pass
-        await query.message.edit_text(
-            text=script.START_TXT.format(query.from_user.mention, gtxt, temp.U_NAME, temp.B_NAME),
-            reply_markup=reply_markup,
-            parse_mode=enums.ParseMode.HTML
-        )
+            # Agar same photo dobara aa jaye toh Telegram error deta hai, usse bachne ke liye:
+            print(f"Media edit failed: {e}")
+            try:
+                # Sirf caption aur buttons update karega agar media update fail ho
+                await query.message.edit_caption(
+                    caption=script.START_TXT.format(query.from_user.mention, gtxt, temp.U_NAME, temp.B_NAME),
+                    reply_markup=reply_markup,
+                    parse_mode=enums.ParseMode.HTML
+                )
+            except:
+                pass
+        
+        # Isse button ka loading spinner turant hat jayega
         await query.answer(MSG_ALRT)
+
 
     elif query.data == "donation":
         buttons = [[
