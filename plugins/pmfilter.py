@@ -1470,33 +1470,21 @@ async def cb_handler(client: Client, query: CallbackQuery):
         else:
             gtxt = "ɢᴏᴏᴅ ɴɪɢʜᴛ 🌑"
         try:
-            # Photo, Text aur Buttons sab ek saath update honge (Super Fast)
-            await query.message.edit_message_media(
-                media=InputMediaPhoto(
-                    random.choice(PICS),
-                    caption=script.START_TXT.format(query.from_user.mention, gtxt, temp.U_NAME, temp.B_NAME),
-                    parse_mode=enums.ParseMode.HTML
-                ),
-                reply_markup=reply_markup
+            await client.edit_message_media(
+                query.message.chat.id,
+                query.message.id,
+                InputMediaPhoto(random.choice(PICS))
             )
         except Exception as e:
-            # Agar same photo dobara aa jaye toh Telegram error deta hai
-            print(f"Media edit failed: {e}")
-            try:
-                # Sirf caption aur buttons update karega agar media update fail ho
-                await query.message.edit_caption(
-                    caption=script.START_TXT.format(query.from_user.mention, gtxt, temp.U_NAME, temp.B_NAME),
-                    reply_markup=reply_markup,
-                    parse_mode=enums.ParseMode.HTML
-                )
-            except:
-                pass
-        
-        # Isse button ka loading spinner turant hat jayega
+            pass
+        await query.message.edit_text(
+            text=script.START_TXT.format(query.from_user.mention, gtxt, temp.U_NAME, temp.B_NAME),
+            reply_markup=reply_markup,
+            parse_mode=enums.ParseMode.HTML
+        )
         await query.answer(MSG_ALRT)
 
     elif query.data == "donation":
-        # Donation wala logic yahan se shuru hoga
         buttons = [[
                 InlineKeyboardButton('🌲 Sᴇɴᴅ Dᴏɴᴀᴛᴇ Sᴄʀᴇᴇɴsʜᴏᴛ Hᴇʀᴇ', url=OWNER_LNK)
             ],[
@@ -1762,7 +1750,7 @@ async def auto_filter(client, msg, spoll=False):
             # ignore scheduling errors
             pass
 
-        # initialize to avoid NameError
+    # initialize to avoid NameError if reply_sticker fails
     m = None
 
     try:
@@ -1772,40 +1760,39 @@ async def auto_filter(client, msg, spoll=False):
                 return
             if re.findall(r"((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", message.text):
                 return
-            
             if len(message.text) < 100:
                 message_text = message.text or ""
                 search = message_text.lower()
 
-                # Fast feel ke liye status bar action (typing status)
-                await client.send_chat_action(message.chat.id, enums.ChatAction.TYPING)
-
-                # --- Sticker aur Search Button wala code hat gaya ---
+                stick_id = "CAACAgIAAxkBAAEPhm5o439f8A4sUGO2VcnBFZRRYxAxmQACtCMAAphLKUjeub7NKlvk2TYE"
+                keyboard = InlineKeyboardMarkup(
+                    [[InlineKeyboardButton(f'🔎 sᴇᴀʀᴄʜɪɴɢ {search}', callback_data="hiding")]]
+                )
+                try:
+                    m = await message.reply_sticker(sticker=stick_id, reply_markup=keyboard)
+                except Exception as e:
+                    logger.exception("reply_sticker failed: %s", e)
 
                 find = search.split(" ")
                 search = ""
-                removes = ["in", "upload", "series", "full", "horror", "thriller", "mystery", "print", "file"]
-                
+                removes = ["in", "upload", "series", "full",
+                           "horror", "thriller", "mystery", "print", "file"]
                 for x in find:
                     if x in removes:
                         continue
                     else:
                         search = search + x + " "
-                
-                # Cleaning search query
                 search = re.sub(r"\b(pl(i|e)*?(s|z+|ease|se|ese|(e+)s(e)?)|((send|snd|giv(e)?|gib)(\sme)?)|movie(s)?|new|latest|bro|bruh|broh|helo|that|find|dubbed|link|venum|iruka|pannunga|pannungga|anuppunga|anupunga|anuppungga|anupungga|film|undo|kitti|kitty|tharu|kittumo|kittum|movie|any(one)|with\ssubtitle(s)?)", "", search, flags=re.IGNORECASE)
                 search = re.sub(r"\s+", " ", search).strip()
                 search = search.replace("-", " ")
                 search = search.replace(":", "")
 
-                # Files search karna
                 files, offset, total_results = await get_search_results(message.chat.id, search, offset=0, filter=True)
 
                 settings = await get_settings(message.chat.id)
                 if not files:
                     if settings.get("spell_check"):
-                        # FIXED: 'm.edit' ki jagah seedha reply_text
-                        ai_sts = await message.reply_text('🤖 ᴘʟᴇᴀꜱᴇ ᴡᴀɪᴛ, ᴀɪ ɪꜱ ᴄʜᴇᴄᴋɪɴɢ ʏᴏᴜʀ ꜱᴘᴇʟʟɪɴɢ...')
+                        ai_sts = await m.edit('🤖 ᴘʟᴇᴀꜱᴇ ᴡᴀɪᴛ, ᴀɪ ɪꜱ ᴄʜᴇᴄᴋɪɴɢ ʏᴏᴜʀ ꜱᴘᴇʟʟɪɴɢ...')
                         is_misspelled = await ai_spell_check(chat_id=message.chat.id, wrong_name=search)
 
                         if is_misspelled:
@@ -1813,7 +1800,6 @@ async def auto_filter(client, msg, spoll=False):
                             message.text = is_misspelled
                             await ai_sts.delete()
                             return await auto_filter(client, message)
-                        
                         await ai_sts.delete()
                         result = await advantage_spell_chok(client, message)
                         return result
@@ -1828,17 +1814,12 @@ async def auto_filter(client, msg, spoll=False):
             else:
                 return
         else:
-            # --- SPOLL BRANCH FIXED ---
+            # spoll branch
             message = msg.message.reply_to_message
             search, files, offset, total_results = spoll
-            
-            # Emoji hatane ke liye Typing action aur seedha search logic
-            await client.send_chat_action(message.chat.id, enums.ChatAction.TYPING)
-            m = None # Searching message ko skip kar diya gaya hai
-            
+            m = await message.reply_text(f'🔎 sᴇᴀʀᴄʜɪɴɢ {search}', reply_to_message_id=message.id)
             settings = await get_settings(message.chat.id)
             await msg.message.delete()
-
 
         key = f"{message.chat.id}-{message.id}"
         FRESH[key] = search
@@ -2058,61 +2039,51 @@ async def advantage_spell_chok(client, message):
     search = message.text
     chat_id = message.chat.id
     settings = await get_settings(chat_id)
-    
     query = re.sub(
         r"\b(pl(i|e)*?(s|z+|ease|se|ese|(e+)s(e)?)|((send|snd|giv(e)?|gib)(\sme)?)|movie(s)?|new|latest|br((o|u)h?)*|^h(e|a)?(l)*(o)*|mal(ayalam)?|t(h)?amil|file|that|find|und(o)*|kit(t(i|y)?)?o(w)?|thar(u)?(o)*w?|kittum(o)*|aya(k)*(um(o)*)?|full\smovie|any(one)|with\ssubtitle(s)?)",
         "", message.text, flags=re.IGNORECASE)
     query = query.strip() + " movie"
-    
     try:
         movies = await get_poster(search, bulk=True)
     except Exception as e:
         logger.exception("get_poster failed for query=%s: %s", query, e)
         try:
-            # Screenshot style: Simple reply without buttons
-            k = await message.reply_text(
-                text=script.I_CUDNT.format(message.from_user.mention),
-                reply_to_message_id=message.id
-            )
+            k = await message.reply(script.I_CUDNT.format(message.from_user.mention))
             await asyncio.sleep(60)
-            await k.delete()
-        except: pass
-        return
-
-    # Google Button yahan se remove kar diya gaya hai
-    if not movies:
-        # Screenshot ke mutabiq message ko quote karke rules dikhana
-        k = await message.reply_text(
-            text=script.I_CUDNT.format(message.from_user.mention), 
-            reply_to_message_id=message.id,
-            disable_web_page_preview=True
-        )
-        await asyncio.sleep(60)
+            try:
+                await k.delete()
+            except Exception:
+                pass
+        except Exception:
+            pass
         try:
-            await k.delete()
             await message.delete()
-        except: pass
+        except Exception:
+            pass
         return
-
+    if not movies:
+        google = quote_plus(search)
+        button = [[InlineKeyboardButton(
+            "🔍 ᴄʜᴇᴄᴋ sᴘᴇʟʟɪɴɢ ᴏɴ ɢᴏᴏɢʟᴇ 🔍", url=f"https://www.google.com/search?q={google}")]]
+        k = await message.reply_text(text=script.I_CUDNT.format(search), reply_markup=InlineKeyboardMarkup(button))
+        await asyncio.sleep(60)
+        await k.delete()
+        try:
+            await message.delete()
+        except:
+            pass
+        return
     user = message.from_user.id if message.from_user else 0
-    
-    # Movie list suggestions buttons
     buttons = [
-        [InlineKeyboardButton(text=movie.get('title'), callback_data=f"spol#{movie.movieID}#{user}")] 
-        for movie in movies
-    ]
-    buttons.append([InlineKeyboardButton(text="🚫 ᴄʟᴏsᴇ 🚫", callback_data='close_data')])
+        [InlineKeyboardButton(text=movie.get('title'), callback_data=f"spol#{movie.movieID}#{user}")
+         ] for movie in movies]
 
-    # Screenshot style: Reply box jisme user ka naam bold ho
-    d = await message.reply_text(
-        text=script.CUDNT_FND.format(message.from_user.mention), 
-        reply_markup=InlineKeyboardMarkup(buttons), 
-        reply_to_message_id=message.id,
-        disable_web_page_preview=True
-    )
-    
-    await asyncio.sleep(120) 
+    buttons.append([InlineKeyboardButton(
+        text="🚫 ᴄʟᴏsᴇ 🚫", callback_data='close_data')])
+    d = await message.reply_text(text=script.CUDNT_FND.format(message.from_user.mention), reply_markup=InlineKeyboardMarkup(buttons), reply_to_message_id=message.id)
+    await asyncio.sleep(60)
+    await d.delete()
     try:
-        await d.delete()
         await message.delete()
-    except: pass
+    except:
+        pass
