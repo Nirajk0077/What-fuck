@@ -1750,7 +1750,7 @@ async def auto_filter(client, msg, spoll=False):
             # ignore scheduling errors
             pass
 
-    # initialize to avoid NameError if reply_sticker fails
+        # initialize to avoid NameError
     m = None
 
     try:
@@ -1760,39 +1760,40 @@ async def auto_filter(client, msg, spoll=False):
                 return
             if re.findall(r"((^\/|^,|^!|^\.|^[\U0001F600-\U000E007F]).*)", message.text):
                 return
+            
             if len(message.text) < 100:
                 message_text = message.text or ""
                 search = message_text.lower()
 
-                stick_id = "CAACAgEAAxkBAAEQExNpSuDwOdSSwat3PHtnAiZKyRj85wACxQIAAkeAGUTTk7G7rIZ7GjYE"
-                keyboard = InlineKeyboardMarkup(
-                    [[InlineKeyboardButton(f'🔎 sᴇᴀʀᴄʜɪɴɢ {search}', callback_data="hiding")]]
-                )
-                try:
-                    m = await message.reply_sticker(sticker=stick_id, reply_markup=keyboard)
-                except Exception as e:
-                    logger.exception("reply_sticker failed: %s", e)
+                # Fast feel ke liye status bar action (typing status)
+                await client.send_chat_action(message.chat.id, enums.ChatAction.TYPING)
+
+                # --- Sticker aur Search Button wala code hat gaya ---
 
                 find = search.split(" ")
                 search = ""
-                removes = ["in", "upload", "series", "full",
-                           "horror", "thriller", "mystery", "print", "file"]
+                removes = ["in", "upload", "series", "full", "horror", "thriller", "mystery", "print", "file"]
+                
                 for x in find:
                     if x in removes:
                         continue
                     else:
                         search = search + x + " "
+                
+                # Cleaning search query
                 search = re.sub(r"\b(pl(i|e)*?(s|z+|ease|se|ese|(e+)s(e)?)|((send|snd|giv(e)?|gib)(\sme)?)|movie(s)?|new|latest|bro|bruh|broh|helo|that|find|dubbed|link|venum|iruka|pannunga|pannungga|anuppunga|anupunga|anuppungga|anupungga|film|undo|kitti|kitty|tharu|kittumo|kittum|movie|any(one)|with\ssubtitle(s)?)", "", search, flags=re.IGNORECASE)
                 search = re.sub(r"\s+", " ", search).strip()
                 search = search.replace("-", " ")
                 search = search.replace(":", "")
 
+                # Files search karna
                 files, offset, total_results = await get_search_results(message.chat.id, search, offset=0, filter=True)
 
                 settings = await get_settings(message.chat.id)
                 if not files:
                     if settings.get("spell_check"):
-                        ai_sts = await m.edit('🤖 ᴘʟᴇᴀꜱᴇ ᴡᴀɪᴛ, ᴀɪ ɪꜱ ᴄʜᴇᴄᴋɪɴɢ ʏᴏᴜʀ ꜱᴘᴇʟʟɪɴɢ...')
+                        # FIXED: 'm.edit' ki jagah seedha reply_text
+                        ai_sts = await message.reply_text('🤖 ᴘʟᴇᴀꜱᴇ ᴡᴀɪᴛ, ᴀɪ ɪꜱ ᴄʜᴇᴄᴋɪɴɢ ʏᴏᴜʀ ꜱᴘᴇʟʟɪɴɢ...')
                         is_misspelled = await ai_spell_check(chat_id=message.chat.id, wrong_name=search)
 
                         if is_misspelled:
@@ -1800,6 +1801,7 @@ async def auto_filter(client, msg, spoll=False):
                             message.text = is_misspelled
                             await ai_sts.delete()
                             return await auto_filter(client, message)
+                        
                         await ai_sts.delete()
                         result = await advantage_spell_chok(client, message)
                         return result
@@ -1814,12 +1816,17 @@ async def auto_filter(client, msg, spoll=False):
             else:
                 return
         else:
-            # spoll branch
+            # --- SPOLL BRANCH FIXED ---
             message = msg.message.reply_to_message
             search, files, offset, total_results = spoll
-            m = await message.reply_text(f'🔎 sᴇᴀʀᴄʜɪɴɢ {search}', reply_to_message_id=message.id)
+            
+            # Emoji hatane ke liye Typing action aur seedha search logic
+            await client.send_chat_action(message.chat.id, enums.ChatAction.TYPING)
+            m = None # Searching message ko skip kar diya gaya hai
+            
             settings = await get_settings(message.chat.id)
             await msg.message.delete()
+
 
         key = f"{message.chat.id}-{message.id}"
         FRESH[key] = search
