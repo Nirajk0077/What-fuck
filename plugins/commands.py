@@ -319,12 +319,6 @@ async def start(client, message):
             # Now, await the file details task
     files_ = await file_details_task
 
-    # Fix: Agar FILE_DELETE_TIME define nahi hai toh crash na ho
-    try:
-        from info import FILE_DELETE_TIME
-    except (ImportError, NameError):
-        FILE_DELETE_TIME = 300 # Default 5 mins agar missing ho
-
     if data.startswith("allfiles"):
         try:
             files = temp.GETALL.get(file_id)
@@ -439,7 +433,6 @@ async def start(client, message):
     await asyncio.sleep(FILE_DELETE_TIME)
     await msg.delete()
     return
-
 
 
 async def stream_buttons(user_id: int, file_id: str):
