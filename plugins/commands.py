@@ -316,7 +316,7 @@ async def start(client, message):
             print(f"Error In Verification - {e}")
             pass
 
-            # Now, await the file details task
+    # Now, await the file details task
     files_ = await file_details_task
 
     if data.startswith("allfiles"):
@@ -325,6 +325,7 @@ async def start(client, message):
             if not files:
                 return await message.reply('<b><i>ɴᴏ ꜱᴜᴄʜ ꜰɪʟᴇ ᴇxɪꜱᴛꜱ !</b></i>')
             filesarr = []
+            cover = None
             for file in files:
                 file_id = file.file_id
                 files_ = await get_file_details(file_id)
@@ -353,11 +354,11 @@ async def start(client, message):
                     reply_markup=InlineKeyboardMarkup(btn)
                 )
                 filesarr.append(msg)
-            
-            # Warning message (k) hataya gaya hai
-            await asyncio.sleep(FILE_DELETE_TIME)
+            k = await client.send_message(chat_id=message.from_user.id, text=script.DEL_MSG.format(get_time(DELETE_TIME)), parse_mode=enums.ParseMode.HTML)
+            await asyncio.sleep(DELETE_TIME)
             for x in filesarr:
                 await x.delete()
+            await k.edit_text("<b>ʏᴏᴜʀ ᴀʟʟ ᴠɪᴅᴇᴏꜱ/ꜰɪʟᴇꜱ ᴀʀᴇ ᴅᴇʟᴇᴛᴇᴅ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ !\nᴋɪɴᴅʟʏ ꜱᴇᴀʀᴄʜ ᴀɢᴀɪɴ</b>")
             return
         except Exception as e:
             logger.exception(e)
@@ -385,6 +386,7 @@ async def start(client, message):
             title = clean_filename(file.file_name)
             size=get_size(file.file_size)
             f_caption = f"<code>{title}</code>"
+            settings = await get_settings(int(grp_id))
             DREAMX_CAPTION = settings.get('caption', CUSTOM_FILE_CAPTION)
             if DREAMX_CAPTION:
                 try:
@@ -395,9 +397,12 @@ async def start(client, message):
                 f_caption,
                 reply_markup=InlineKeyboardMarkup(btn)
             )
-            # Warning message (k) hataya gaya hai
-            await asyncio.sleep(FILE_DELETE_TIME)
+            k = await msg.reply(script.DEL_MSG.format(get_time(DELETE_TIME)),
+                quote=True, parse_mode=enums.ParseMode.HTML
+            )
+            await asyncio.sleep(DELETE_TIME)
             await msg.delete()
+            await k.edit_text("<b>ʏᴏᴜʀ ᴠɪᴅᴇᴏ / ꜰɪʟᴇ ɪꜱ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ᴅᴇʟᴇᴛᴇᴅ !!</b>")
             return
         except Exception as e:
             logger.exception(e)
@@ -429,11 +434,13 @@ async def start(client, message):
         protect_content=settings.get('file_secure', PROTECT_CONTENT),
         reply_markup=InlineKeyboardMarkup(btn)
     )
-    # Warning message (k) hataya gaya hai
-    await asyncio.sleep(FILE_DELETE_TIME)
+    k = await msg.reply(script.DEL_MSG.format(get_time(DELETE_TIME)),
+        quote=True, parse_mode=enums.ParseMode.HTML
+    )     
+    await asyncio.sleep(DELETE_TIME)
     await msg.delete()
+    await k.edit_text("<b>ʏᴏᴜʀ ᴠɪᴅᴇᴏ / ꜰɪʟᴇ ɪꜱ ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ᴅᴇʟᴇᴛᴇᴅ !!</b>")
     return
-
 
 async def stream_buttons(user_id: int, file_id: str):
     if STREAM_MODE and not PREMIUM_STREAM_MODE:
