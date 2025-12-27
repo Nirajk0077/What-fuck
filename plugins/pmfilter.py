@@ -844,6 +844,8 @@ async def cb_handler(client: Client, query: CallbackQuery):
         link = await client.create_chat_invite_link(int(REQST_CHANNEL))
     except:
         pass
+
+    # Yahan se IF-ELIF chain shuru hoti hai
     if query.data == "close_data":
         try:
             user = query.message.reply_to_message.from_user.id
@@ -858,7 +860,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
         except:
             pass
 
-        elif query.data == "pages":
+    elif query.data == "pages":
         await query.answer("ᴛʜɪs ɪs ᴘᴀɢᴇs ʙᴜᴛᴛᴏɴ 😅")
 
     elif query.data == "hiding":
@@ -958,6 +960,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             await query.message.edit('ꜱᴜᴄᴄᴇꜱꜱꜰᴜʟʟʏ ᴅᴇʟᴇᴛᴇᴅ ᴀʟʟ ɪɴᴅᴇxᴇᴅ ꜰɪʟᴇꜱ ✅')
         except:
             pass
+
 
 
     elif query.data.startswith("checksub"):
