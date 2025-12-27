@@ -882,7 +882,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
             else:
                 await query.answer("Tʜᴀᴛ's ɴᴏᴛ ғᴏʀ ʏᴏᴜ!!", show_alert=True)
 
-            if query.data.startswith("file"):
+                if query.data.startswith("file"):
         ident, file_id = query.data.split("#")
         user = query.message.reply_to_message.from_user.id if query.message.reply_to_message else query.from_user.id
         if int(user) != 0 and query.from_user.id != int(user):
@@ -908,6 +908,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
         except Exception as e:
             logger.error(f"Callback Error: {e}")
             pass
+
 
     elif query.data.startswith("del"):
         ident, file_id = query.data.split("#")
