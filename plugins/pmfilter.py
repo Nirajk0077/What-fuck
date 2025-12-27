@@ -963,15 +963,16 @@ async def cb_handler(client: Client, query: CallbackQuery):
 
 
 
-    elif query.data.startswith("checksub"):
+        elif query.data.startswith("checksub"):
         try:
             ident, kk, file_id = query.data.split("#")
             btn = []
             chat = file_id.split("_")[0]
             settings = await get_settings(chat)
-            fsub_channels = list(dict.fromkeys((settings.get('fsub', []) if settings else [])+ AUTH_CHANNELS)) 
+            fsub_channels = list(dict.fromkeys((settings.get('fsub', []) if settings else []) + AUTH_CHANNELS)) 
             btn += await is_subscribed(client, query.from_user.id, fsub_channels)
             btn += await is_req_subscribed(client, query.from_user.id, AUTH_REQ_CHANNELS)
+            
             if btn:
                 btn.append([InlineKeyboardButton("♻️ ᴛʀʏ ᴀɢᴀɪɴ ♻️", callback_data=f"checksub#{kk}#{file_id}")])
                 try:
@@ -985,11 +986,26 @@ async def cb_handler(client: Client, query: CallbackQuery):
                     show_alert=True
                 )
                 return
-            await query.answer(url=f"https://t.me/{temp.U_NAME}?start={kk}_{file_id}")
-            await query.message.delete()
+
+            # Pehle answer bhejenge phir delete karenge
+            try:
+                await query.answer(url=f"https://t.me/{temp.U_NAME}?start={kk}_{file_id}")
+            except Exception as e:
+                logger.error(f"Error answering checksub: {e}")
+
+            # Delete block ko alag se handle kiya hai taaki 403 error na aaye
+            try:
+                await query.message.delete()
+            except:
+                # Agar delete permission nahi hai toh ignore kar do
+                pass
+            return
+
         except Exception as e:
+            # Sirf bade errors log honge, delete wala error ab log nahi hoga
             await log_error(client, f"❌ Error in checksub callback:\n\n{repr(e)}")
             logger.error(f"❌ Error in checksub callback:\n\n{repr(e)}")
+
 
 
     elif query.data.startswith("killfilesdq"):
