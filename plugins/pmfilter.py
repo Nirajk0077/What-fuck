@@ -845,7 +845,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
     except:
         pass
 
-    # Yahan se IF-ELIF chain shuru hoti hai
+    # Sabhi if/elif blocks ek hi vertical line (alignment) mein hone chahiye
     if query.data == "close_data":
         try:
             user = query.message.reply_to_message.from_user.id
@@ -961,9 +961,7 @@ async def cb_handler(client: Client, query: CallbackQuery):
         except:
             pass
 
-
-
-        elif query.data.startswith("checksub"):
+    elif query.data.startswith("checksub"):
         try:
             ident, kk, file_id = query.data.split("#")
             btn = []
@@ -987,26 +985,21 @@ async def cb_handler(client: Client, query: CallbackQuery):
                 )
                 return
 
-            # Pehle answer bhejenge phir delete karenge
             try:
                 await query.answer(url=f"https://t.me/{temp.U_NAME}?start={kk}_{file_id}")
             except Exception as e:
                 logger.error(f"Error answering checksub: {e}")
 
-            # Delete block ko alag se handle kiya hai taaki 403 error na aaye
             try:
                 await query.message.delete()
             except:
-                # Agar delete permission nahi hai toh ignore kar do
+                # Permission error (403) aane par ignore karega
                 pass
             return
 
         except Exception as e:
-            # Sirf bade errors log honge, delete wala error ab log nahi hoga
             await log_error(client, f"❌ Error in checksub callback:\n\n{repr(e)}")
             logger.error(f"❌ Error in checksub callback:\n\n{repr(e)}")
-
-
 
     elif query.data.startswith("killfilesdq"):
         ident, keyword = query.data.split("#")
